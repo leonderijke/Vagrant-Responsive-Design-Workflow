@@ -30,8 +30,8 @@ Vagrant.configure("2") do |config|
 
   # Provision our server using Ansible
   config.vm.provision :ansible do |ansible|
-      ansible.playbook = "ansible/vagrant.yml"
-      ansible.inventory_file = "ansible/hosts"
-      ansible.verbose = true
-    end
+    ansible.playbook = "ansible/vagrant.yml"
+    ansible.inventory_file = "ansible/hosts"
+    ansible.verbose = true
+  end
 end

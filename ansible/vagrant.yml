@@ -5,15 +5,24 @@
   sudo: True
 
   tasks:
+    - name: ensure Cabal dir exists
+      file: dest=/home/vagrant/.cabal state=directory owner=vagrant group=vagrant mode=0744
+
+    - name: copy files
+      copy: src=files/$item dest=/home/vagrant/$item
+      with_items:
+        - .cabal/config
+
     - name: update apt
       action: command /usr/bin/apt-get update
 
-    - name: install Python packages
+    - name: install system packages
       action: apt pkg=$item state=installed
       with_items:
         - build-essential
         - python-dev
         - python-setuptools
+        - haskell-platform
 
     - name: install pip
       action: easy_install name=pip
@@ -23,3 +32,11 @@
       with_items:
         - dexy
         - dexy_rdw
+
+    - name: update cabal
+      shell: cabal update
+      sudo: False
+
+    - name: install Pandoc
+      shell: cabal install pandoc
+      sudo: False
