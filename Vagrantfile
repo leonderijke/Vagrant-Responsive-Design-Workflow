@@ -14,7 +14,7 @@ Vagrant.configure("2") do |config|
   # Dexy
   config.vm.network :forwarded_port, guest: 8085, host: 8085, auto_correct: true
 
-  config.vm.network :private_network, ip: "192.168.56.101"
+  config.vm.network :private_network, ip: "192.168.56.201"
 
   # Disable the default synced folder on /vagrant
   config.vm.synced_folder ".", "/vagrant", disabled: true
@@ -27,4 +27,11 @@ Vagrant.configure("2") do |config|
     # Add some extra memory
     vb.customize ["modifyvm", :id, "--memory", "512"]
   end
+
+  # Provision our server using Ansible
+  config.vm.provision :ansible do |ansible|
+      ansible.playbook = "ansible/vagrant.yml"
+      ansible.inventory_file = "ansible/hosts"
+      ansible.verbose = true
+    end
 end

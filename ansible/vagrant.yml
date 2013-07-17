@@ -1,0 +1,25 @@
+---
+
+- hosts: vagrant
+  user: vagrant
+  sudo: True
+
+  tasks:
+    - name: update apt
+      action: command /usr/bin/apt-get update
+
+    - name: install Python packages
+      action: apt pkg=$item state=installed
+      with_items:
+        - build-essential
+        - python-dev
+        - python-setuptools
+
+    - name: install pip
+      action: easy_install name=pip
+
+    - name: install various libraries with pip
+      action: pip name=$item state=present
+      with_items:
+        - dexy
+        - dexy_rdw
