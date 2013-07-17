@@ -73,4 +73,4 @@ Add phantomjs and casperjs packages. Maybe add Sass and Compass.
 
 ## License
 
-MIT License
+MIT License, see [LICENSE.txt](LICENSE.txt)
