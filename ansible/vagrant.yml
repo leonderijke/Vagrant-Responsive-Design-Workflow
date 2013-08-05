@@ -1,42 +1,71 @@
 ---
 
 - hosts: vagrant
-  user: vagrant
-  sudo: True
+
+  vars:
+    user: vagrant
+    ruby_version: 1.9.3-p448
+
+  user: $user
 
   tasks:
-    - name: ensure Cabal dir exists
-      file: dest=/home/vagrant/.cabal state=directory owner=vagrant group=vagrant mode=0744
+    - name: "[Haskell] Ensure Cabal dir exists"
+      file: dest=/home/$user/.cabal state=directory owner=$user group=vagrant mode=0744
 
-    - name: copy files
-      copy: src=files/$item dest=/home/vagrant/$item
+    - name: "[Haskell] copy files"
+      copy: src=files/$item dest=/home/$user/$item
       with_items:
         - .cabal/config
 
-    - name: update apt
+    - name: "[General] Update apt"
       action: command /usr/bin/apt-get update
+      sudo: True
 
-    - name: install system packages
+    - name: "[General] Install system packages"
       action: apt pkg=$item state=installed
       with_items:
         - build-essential
         - python-dev
         - python-setuptools
         - haskell-platform
+        - curl
+      sudo: True
 
-    - name: install pip
+    - name: "[Python] Install pip"
       action: easy_install name=pip
+      sudo: True
 
-    - name: install various libraries with pip
+    - name: "[Python] Install various libraries with pip"
       action: pip name=$item state=present
       with_items:
         - dexy
         - dexy_rdw
+        - markdown
+      sudo: True
 
     - name: update cabal
       shell: cabal update
-      sudo: False
 
     - name: install Pandoc
       shell: cabal install pandoc
-      sudo: False
+
+    - name: "[Ruby] Install rvm"
+      shell: curl -L https://get.rvm.io | bash -s -- --ignore-dotfiles creates=/home/$user/.rvm executable=/bin/bash
+
+    - name: "[Ruby] Add rvm to path"
+      shell: echo '. ~/.rvm/scripts/rvm' >> /home/$user/.bashrc executable=/bin/bash
+
+    - name: "[Ruby] Install Ruby"
+      shell: /home/$user/.rvm/bin/rvm install $ruby_version
+
+    - name: "[Ruby] Make log dir"
+      file: path=/home/$user/.vagrant state=directory
+
+    - name: "[Ruby] Copy shell script"
+      copy: src=files/gems.sh dest=/tmp/gems.sh owner=$user mode=0744
+
+    - name: "[Ruby] Install gems"
+      shell: /tmp/gems.sh $ruby_version {{ item.gem }}{% if item.args is defined %} {{ item.args }}{% endif %} creates=/home/$user/.vagrant/installed-{{ item.gem }}
+      with_items:
+        - { gem: 'sass', args: '--pre' }
+        - { gem: 'compass', args: '--pre' }
