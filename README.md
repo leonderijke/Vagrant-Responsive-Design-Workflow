@@ -69,7 +69,7 @@ $ vagrant start
 
 ## TODO
 
-Add phantomjs and casperjs packages. Maybe add Sass and Compass.
+Add phantomjs and casperjs packages.
 
 ## License
 
